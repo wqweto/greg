@@ -2,12 +2,12 @@ CFLAGS = -g -Wall $(OFLAGS) $(XFLAGS)
 OFLAGS = -O3 -DNDEBUG
 #OFLAGS = -pg
 
-OBJS = tree.o compile.o
+SRCS = tree.c compile.c
 
 all : greg
 
-greg : greg.o $(OBJS)
-	$(CC) $(CFLAGS) -o $@-new greg.o $(OBJS)
+greg : greg.c $(SRCS)
+	$(CC) $(CFLAGS) -o $@-new greg.c $(SRCS)
 	mv $@-new $@
 
 ROOT	=
@@ -23,14 +23,12 @@ $(BINDIR)/% : %
 uninstall : .FORCE
 	rm -f $(BINDIR)/greg
 
-greg.o : greg.c
-
 # bootstrap greg from greg.g
 greg.c : greg.g compile.c tree.c
 	test -f greg && ./greg -o greg-new.c greg.g
-	$(CC) $(CFLAGS) -o greg-new greg-new.c $(OBJS)
+	$(CC) $(CFLAGS) -o greg-new greg-new.c $(SRCS)
 	./greg-new -o greg-new.c greg.g
-	$(CC) $(CFLAGS) -o greg-new greg-new.c $(OBJS)
+	$(CC) $(CFLAGS) -o greg-new greg-new.c $(SRCS)
 	mv greg-new.c greg.c
 	mv greg-new greg
 
@@ -55,9 +53,9 @@ test: samples/calc run
 run: greg
 	mkdir -p selftest
 	./greg -o testing1.c greg.g
-	$(CC) $(CFLAGS) -o selftest/testing1 testing1.c $(OBJS)
+	$(CC) $(CFLAGS) -o selftest/testing1 testing1.c $(SRCS)
 	$(TOOL) ./selftest/testing1 -o testing2.c greg.g
-	$(CC) $(CFLAGS) -o selftest/testing2 testing2.c $(OBJS)
+	$(CC) $(CFLAGS) -o selftest/testing2 testing2.c $(SRCS)
 	$(TOOL) ./selftest/testing2 -o selftest/calc.c ./samples/calc.leg
 	$(CC) $(CFLAGS) -o selftest/calc selftest/calc.c
 	$(TOOL) echo '21 * 2 + 0' | ./selftest/calc | grep 42

@@ -298,6 +298,7 @@ static void Node_fprint(FILE *stream, Node *node)
   switch (node->type)
     {
     case Rule:		fprintf(stream, " %s", node->rule.name);				break;
+    case Variable:	fprintf(stream, " %s", node->variable.name);				break;
     case Name:		fprintf(stream, " %s", node->name.rule->rule.name);			break;
     case Dot:		fprintf(stream, " .");							break;
     case Character:	fprintf(stream, " '%s'", node->character.value);			break;
@@ -351,3 +352,77 @@ static void Rule_fprint(FILE *stream, Node *node)
 }
 
 void Rule_print(Node *node)	{ Rule_fprint(stderr, node); }
+
+void Rule_free(Node *node)
+{
+  FILE *stream = stderr;
+  switch (node->type)
+    {
+    case -1: 		return;
+    case Rule:		free(node->rule.name);			break;
+    case Name:		free(node->name.rule->rule.name);	break;
+    case Variable:	free(node->variable.name);		break;
+    case Dot:		break;
+    case Character:	free(node->character.value);		break;
+    case String:	free(node->string.value);		break;
+    case Class:		free(node->cclass.value);		break;
+    case Action:	free(node->action.text); free(node->action.name); break;
+    case Predicate:	free(node->predicate.text);		break;
+    case Alternate:
+      {
+	Node *root= node;
+	node= node->alternate.first;
+	while (node->any.next) {
+	  Node *tmp= node->any.next;
+	  Rule_free(node);
+	  node= tmp;
+	}
+	Rule_free(node);
+	node= root;
+	break;
+      }
+    case Sequence:
+      {
+	Node *root= node;
+	node= node->sequence.first;
+	while (node->any.next) {
+	  Node *tmp= node->any.next;
+	  Rule_free(node);
+	  node= tmp;
+	}
+	Rule_free(node);
+	node= root;
+	break;
+      }
+    case PeekFor:	break;
+    case PeekNot:	break;
+    case Query:		break;
+    case Star:		break;
+    case Plus:		break;
+    default:
+      fprintf(stream, "\nunknown node type %d\n", node->type);
+      return;
+    }
+  assert(node);
+  node->type = -1;
+  if (((struct Any *)node)->errblock)
+    free(((struct Any *)node)->errblock);
+  free(node);
+}
+
+void freeRules (void) {
+  Node *n;
+  for (n= rules; n; ) {
+    if (n->type > 0) {
+      Node *tmp= n->any.next;
+      Rule_free(n);
+      if (tmp)
+	n= tmp->any.next;
+      else
+	n= NULL;
+    }
+    else {
+      n= n->any.next;
+    }
+  }
+}

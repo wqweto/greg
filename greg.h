@@ -112,3 +112,4 @@ extern void  Rule_compile_c(Node *node);
 
 extern void  Node_print(Node *node);
 extern void  Rule_print(Node *node);
+extern void  Rule_free(Node *node);

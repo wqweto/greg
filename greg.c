@@ -36,9 +36,9 @@ struct _GREG;
 
   void yyerror(struct _GREG *, char *message);
 
-# define YY_INPUT(buf, result, max, D)		\
-  {						\
-    int c= getc(input);				\
+# define YY_INPUT(buf, result, max, D)		    \
+  {						                        \
+    int c= getc(input);                         \
     if ('\n' == c || '\r' == c) ++lineNumber;	\
     result= (EOF == c) ? 0 : (*(buf)= c, 1);	\
   }
@@ -1559,14 +1559,35 @@ int main(int argc, char **argv)
 
   Rule_compile_c_header();
 
-  for (; headers;  headers= headers->next)
+  while (headers) {
+    Header *tmp = headers;
     fprintf(output, "%s\n", headers->text);
+    free(headers->text);
+    tmp= headers->next;
+    free(headers);
+    headers= tmp;
+  }
 
   if (rules)
     Rule_compile_c(rules);
 
-  if (trailer)
+  if (trailer) {
     fprintf(output, "%s\n", trailer);
+    free(trailer);
+  }
+
+  for (n= rules; n; ) {
+    if (n->type > 0) {
+      Node *tmp= n->any.next;
+      Rule_free(n);
+      if (tmp)
+        n= tmp->any.next;
+      else
+        n= NULL;
+    } else {
+      n= n->any.next;
+    }
+  }
 
   return 0;
 }

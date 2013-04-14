@@ -2,3 +2,5 @@
 greg
 greg.exe
 samples/*.c
+/.gdbinit
+/.lldbinit
