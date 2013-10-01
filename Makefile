@@ -1,5 +1,5 @@
-CFLAGS = -g -Wall $(OFLAGS) $(XFLAGS)
 OFLAGS = -O3 -DNDEBUG
+CFLAGS = -g -Wall $(OFLAGS) $(XFLAGS)
 #OFLAGS = -pg
 
 SRCS = tree.c compile.c
@@ -8,7 +8,7 @@ all : greg
 
 greg : greg.c $(SRCS)
 	$(CC) $(CFLAGS) -o $@-new greg.c $(SRCS)
-	mv $@-new $@
+	cp $@-new $@
 
 ROOT	=
 PREFIX	?= /usr
@@ -25,12 +25,15 @@ uninstall : .FORCE
 
 # bootstrap greg from greg.g
 greg.c : greg.g compile.c tree.c
-	test -f greg && ./greg -o greg-new.c greg.g
-	$(CC) $(CFLAGS) -o greg-new greg-new.c $(SRCS)
+	$(MAKE) greg-new
 	./greg-new -o greg-new.c greg.g
 	$(CC) $(CFLAGS) -o greg-new greg-new.c $(SRCS)
-	mv greg-new.c greg.c
-	mv greg-new greg
+	cp greg-new.c greg.c
+	cp greg-new greg
+
+# bootstrap: call make greg-new when you updated compile.c and greg-new.c
+greg-new : greg-new.c $(SRCS)
+	$(CC) $(CFLAGS) -o greg-new greg-new.c $(SRCS)
 
 grammar : .FORCE
 	./greg -o greg.c greg.g

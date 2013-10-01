@@ -1,6 +1,9 @@
+# -*- mode: antlr; tab-width:8 -*-
 # LE Grammar for LE Grammars
 # 
 # Copyright (c) 2007 by Ian Piumarta
+# Copyright (c) 2011 by Amos Wenger nddrylliog@gmail.com
+# Copyright (c) 2013 by perl11 org
 # All rights reserved.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a
@@ -15,15 +18,12 @@
 # 
 # THE SOFTWARE IS PROVIDED 'AS IS'.  USE ENTIRELY AT YOUR OWN RISK.
 # 
-# Last edited: 2007-09-13 08:12:17 by piumarta on emilia.local
+# Last edited: 2013-04-11 15:58:07 rurban
 
 %{
 # include "greg.h"
 
-# include <stdio.h>
-# include <stdlib.h>
 # include <unistd.h>
-# include <string.h>
 # include <libgen.h>
 # include <assert.h>
 
@@ -34,29 +34,13 @@
     Header *next;
   };
 
-  FILE *input= 0;
-
   int   verboseFlag= 0;
 
-  static int	 lineNumber= 0;
-  static char	*fileName= 0;
   static char	*trailer= 0;
   static Header	*headers= 0;
 
   void makeHeader(char *text);
   void makeTrailer(char *text);
-
-  void yyerror(struct _GREG *, char *message);
-
-# define YY_INPUT(buf, result, max, D)		    \
-  {						                        \
-    int c= getc(input);                         \
-    if ('\n' == c || '\r' == c) ++lineNumber;	\
-    result= (EOF == c) ? 0 : (*(buf)= c, 1);	\
-  }
-
-# define YY_LOCAL(T)	static T
-# define YY_RULE(T)	static T
 %}
 
 # Hierarchical syntax
@@ -67,10 +51,10 @@ declaration=	'%{' < ( !'%}' . )* > RPERCENT		{ makeHeader(yytext); }						#{YYAC
 
 trailer=	'%%' < .* >				{ makeTrailer(yytext); }					#{YYACCEPT}
 
-definition=	s:identifier 				{ if (push(beginRule(findRule(yytext,1)))->rule.expression)
+definition=	s:identifier 				{ if (push(beginRule(findRule(yytext, s)))->rule.expression)
 							    fprintf(stderr, "rule '%s' redefined\n", yytext); }
-			EQUAL expression		{ Node *e= pop();  Rule_setExpression(pop(), e); }
-			SEMICOLON?											#{YYACCEPT}
+		EQUAL expression			{ Node *e= pop();  Rule_setExpression(pop(), e); }
+		SEMICOLON?												#{YYACCEPT}
 
 expression=	sequence (BAR sequence			{ Node *f= pop();  push(Alternate_append(pop(), f)); }
 			    )*
@@ -90,8 +74,8 @@ suffix=		primary (QUESTION			{ push(makeQuery(pop())); }
 
 primary=	(
                 identifier				{ push(makeVariable(yytext)); }
-			COLON identifier !EQUAL		{ Node *name= makeName(findRule(yytext,0));  name->name.variable= pop();  push(name); }
-|		identifier !EQUAL			{ push(makeName(findRule(yytext,0))); }
+		COLON identifier !EQUAL			{ Node *name= makeName(findRule(yytext, 0));  name->name.variable= pop();  push(name); }
+|		identifier !EQUAL			{ push(makeName(findRule(yytext, 0))); }
 |		OPEN expression CLOSE
 |		literal					{ push(makeString(yytext)); }
 |		class					{ push(makeClass(yytext)); }
@@ -148,31 +132,6 @@ end-of-file=	!.
 
 %%
 
-void yyerror(struct _GREG *G, char *message)
-{
-  fprintf(stderr, "%s:%d: %s", fileName, lineNumber, message);
-  if (G->text[0]) fprintf(stderr, " near token '%s'", G->text);
-  if (G->pos < G->limit || !feof(input))
-    {
-      G->buf[G->limit]= '\0';
-      fprintf(stderr, " before text \"");
-      while (G->pos < G->limit)
-	{
-	  if ('\n' == G->buf[G->pos] || '\r' == G->buf[G->pos]) break;
-	  fputc(G->buf[G->pos++], stderr);
-	}
-      if (G->pos == G->limit)
-	{
-	  int c;
-	  while (EOF != (c= fgetc(input)) && '\n' != c && '\r' != c)
-	    fputc(c, stderr);
-	}
-      fputc('\"', stderr);
-    }
-  fprintf(stderr, "\n");
-  exit(1);
-}
-
 void makeHeader(char *text)
 {
   Header *header= (Header *)malloc(sizeof(Header));
@@ -199,6 +158,9 @@ static void usage(char *name)
   fprintf(stderr, "  -h          print this help information\n");
   fprintf(stderr, "  -o <ofile>  write output to <ofile>\n");
   fprintf(stderr, "  -v          be verbose\n");
+#ifdef YY_DEBUG
+  fprintf(stderr, "  -vv         be more verbose\n");
+#endif
   fprintf(stderr, "  -V          print version number and exit\n");
   fprintf(stderr, "if no <file> is given, input is read from stdin\n");
   fprintf(stderr, "if no <ofile> is given, output is written to stdout\n");
@@ -212,9 +174,6 @@ int main(int argc, char **argv)
   int   c;
 
   output= stdout;
-  input= stdin;
-  lineNumber= 1;
-  fileName= "<stdin>";
 
   while (-1 != (c= getopt(argc, argv, "Vho:v")))
     {
@@ -249,41 +208,38 @@ int main(int argc, char **argv)
   argv += optind;
 
   G = yyparse_new(NULL);
+  G->lineno= 1;
+  G->filename= "-";
 #ifdef YY_DEBUG
   if (verboseFlag > 0) {
-    G->debug = DEBUG_PARSE;
+    yydebug = YYDEBUG_PARSE;
     if (verboseFlag > 1)
-      G->debug = DEBUG_PARSE + DEBUG_VERBOSE;
+      yydebug = YYDEBUG_PARSE + YYDEBUG_VERBOSE;
   }
 #endif
+
   if (argc)
     {
       for (;  argc;  --argc, ++argv)
 	{
-	  if (!strcmp(*argv, "-"))
+	  if (strcmp(*argv, "-"))
 	    {
-	      input= stdin;
-	      fileName= "<stdin>";
-	    }
-	  else
-	    {
-	      if (!(input= fopen(*argv, "r")))
+	      G->filename= *argv;
+	      if (!(G->input= fopen(G->filename, "r")))
 		{
-		  perror(*argv);
+		  perror(G->filename);
 		  exit(1);
 		}
-	      fileName= *argv;
 	    }
-	  lineNumber= 1;
 	  if (!yyparse(G))
-	    yyerror(G, "syntax error");
-	  if (input != stdin)
-	    fclose(input);
+	    YY_ERROR("syntax error");
+	  if (G->input != stdin)
+	    fclose(G->input);
 	}
     }
   else
     if (!yyparse(G))
-      yyerror(G, "syntax error");
+      YY_ERROR("syntax error");
   yyparse_free(G);
 
   if (verboseFlag)
@@ -301,25 +257,14 @@ int main(int argc, char **argv)
     headers= tmp;
   }
 
-  if (rules)
+  if (rules) {
     Rule_compile_c(rules);
+    freeRules();
+  }
 
   if (trailer) {
     fprintf(output, "%s\n", trailer);
     free(trailer);
-  }
-
-  for (n= rules; n; ) {
-    if (n->type > 0) {
-      Node *tmp= n->any.next;
-      Rule_free(n);
-      if (tmp)
-        n= tmp->any.next;
-      else
-        n= NULL;
-    } else {
-      n= n->any.next;
-    }
   }
 
   return 0;

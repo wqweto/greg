@@ -1,9 +1,10 @@
-greg is a re-entrant peg/leg, with some bug fixes.
+greg is a re-entrant peg/leg, with some bug fixes and enhancements.
 <http://piumarta.com/software/peg/>
 
-the most comprehensive example of greg usage is in
-nagaqueen, an ooc grammar, used in rock, an ooc
-compiler written in ooc.
+greg derived from potion <http://github.com/perl11/potion>,
+is used as perl5 and perl6 parser in <http://github.com/perl11/p2>
+and in nagaqueen, an ooc grammar, used in rock, an ooc
+compiler written in ooc,
 <http://github.com/nddrylliog/nagaqueen>
 <http://github.com/nddrylliog/rock>
 

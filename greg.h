@@ -1,4 +1,6 @@
 /* Copyright (c) 2007 by Ian Piumarta
+ * Copyright (c) 2011 by Amos Wenger nddrylliog@gmail.com
+ * Copyright (c) 2013 by perl11 org
  * All rights reserved.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a
@@ -13,25 +15,25 @@
  * 
  * THE SOFTWARE IS PROVIDED 'AS IS'.  USE ENTIRELY AT YOUR OWN RISK.
  * 
- * Last edited: 2007-05-15 10:32:05 by piumarta on emilia
+ * Last edited: 2013-04-11 11:10:34 rurban
  */
 
 #include <stdio.h>
 
-#define GREG_MAJOR      0
-#define GREG_MINOR      4
-#define GREG_LEVEL      4
+#define GREG_MAJOR	0
+#define GREG_MINOR	4
+#define GREG_LEVEL	5
 
-enum { Unknown= 0, Rule, Variable, Name, Dot, Character, String, Class, Action, Predicate, Alternate, Sequence, PeekFor, PeekNot, Query, Star, Plus };
+typedef enum { Freed = -1, Unknown= 0, Rule, Variable, Name, Dot, Character, String, Class, Action, Predicate, Alternate, Sequence, PeekFor, PeekNot, Query, Star, Plus, Any } NodeType;
 
 enum {
-  RuleUsed      = 1<<0,
-  RuleReached   = 1<<1,
+  RuleUsed	= 1<<0,
+  RuleReached	= 1<<1,
 };
 
 typedef union Node Node;
 
-#define NODE_COMMON int type;  Node *next; char *errblock
+#define NODE_COMMON NodeType type;  Node *next; char *errblock
 struct Rule	 { NODE_COMMON; char *name; Node *variables;  Node *expression;  int id;  int flags;	};
 struct Variable	 { NODE_COMMON; char *name; Node *value;  int offset;					};
 struct Name	 { NODE_COMMON; Node *rule; Node *variable;						};
@@ -53,24 +55,24 @@ struct Any	 { NODE_COMMON;										};
 
 union Node
 {
-  int                   type;
-  struct Rule           rule;
-  struct Variable       variable;
-  struct Name           name;
-  struct Dot            dot;
-  struct Character      character;
-  struct String         string;
-  struct Class          cclass;
-  struct Action         action;
-  struct Predicate      predicate;
-  struct Alternate      alternate;
-  struct Sequence       sequence;
-  struct PeekFor        peekFor;
-  struct PeekNot        peekNot;
-  struct Query          query;
-  struct Star           star;
-  struct Plus           plus;
-  struct Any            any;
+  NodeType		type;
+  struct Rule		rule;
+  struct Variable	variable;
+  struct Name		name;
+  struct Dot		dot;
+  struct Character	character;
+  struct String		string;
+  struct Class		cclass;
+  struct Action		action;
+  struct Predicate	predicate;
+  struct Alternate	alternate;
+  struct Sequence	sequence;
+  struct PeekFor	peekFor;
+  struct PeekNot	peekNot;
+  struct Query		query;
+  struct Star		star;
+  struct Plus		plus;
+  struct Any		any;
 };
 
 extern Node *actions;
@@ -81,8 +83,8 @@ extern int   ruleCount;
 
 extern FILE *output;
 
-extern Node *makeRule(char *name, int defined);
-extern Node *findRule(char *name, int defined);
+extern Node *makeRule(char *name, int starts);
+extern Node *findRule(char *name, int starts);
 extern Node *beginRule(Node *rule);
 extern void  Rule_setExpression(Node *rule, Node *expression);
 extern Node *Rule_beToken(Node *rule);
@@ -113,3 +115,4 @@ extern void  Rule_compile_c(Node *node);
 extern void  Node_print(Node *node);
 extern void  Rule_print(Node *node);
 extern void  Rule_free(Node *node);
+extern void  freeRules(void);

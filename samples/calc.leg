@@ -4,7 +4,7 @@ int vars[26];
 %}
 
 Stmt	= - e:Expr EOL			{ printf("%d\n", e); }
-	| ( !EOL . )* EOL		{ printf("error\n"); }
+	| ( !EOL . )* EOL		{ YY_ERROR("error\n"); }
 
 Expr	= i:ID ASSIGN s:Sum		{ $$= vars[i]= s; }
 	| s:Sum				{ $$= s; }
