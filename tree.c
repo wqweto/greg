@@ -38,7 +38,6 @@ static inline Node *_newNode(int type, int size)
 {
   Node *node= calloc(1, size);
   node->type= type;
-  ((struct Any *) node)->errblock= NULL;
   return node;
 }
 
@@ -160,6 +159,14 @@ Node *makePredicate(char *text)
 {
   Node *node= newNode(Predicate);
   node->predicate.text= strdup(text);
+  return node;
+}
+
+Node *makeError(Node *e, char *text)
+{
+  Node *node= newNode(Error);
+  node->error.element= e;
+  node->error.text= strdup(text);
   return node;
 }
 
@@ -306,6 +313,7 @@ static void Node_fprint(FILE *stream, Node *node)
     case Class:		fprintf(stream, " [%s]", node->cclass.value);				break;
     case Action:	fprintf(stream, " { %s }", node->action.text);				break;
     case Predicate:	fprintf(stream, " ?{ %s }", node->action.text);				break;
+    case Error:		fprintf(stream, " ~{ %s }", node->error.text);				break;
 
     case Alternate:	node= node->alternate.first;
 			fprintf(stream, " (");
@@ -368,6 +376,7 @@ void Rule_free(Node *node)
     case Class:		free(node->cclass.value);		break;
     case Action:	free(node->action.text); free(node->action.name); break;
     case Predicate:	free(node->predicate.text);		break;
+    case Error:		free(node->error.text);			break;
     case Alternate:
       {
 	Node *root= node;
@@ -404,9 +413,7 @@ void Rule_free(Node *node)
       return;
     }
   assert(node);
-  node->type = -1;
-  if (((struct Any *)node)->errblock)
-    free(((struct Any *)node)->errblock);
+  node->type = Freed;
   free(node);
 }
 

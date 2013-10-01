@@ -18,7 +18,7 @@
 # 
 # THE SOFTWARE IS PROVIDED 'AS IS'.  USE ENTIRELY AT YOUR OWN RISK.
 # 
-# Last edited: 2013-04-11 15:58:07 rurban
+# Last edited: 2013-10-01 11:36:41 rurban
 
 %{
 # include "greg.h"
@@ -71,8 +71,11 @@ definition=	s:identifier 				{ if (push(beginRule(findRule(yytext, s)))->rule.ex
 expression=	sequence (BAR sequence			{ Node *f= pop();  push(Alternate_append(pop(), f)); }
 			    )*
 
-sequence=	prefix (prefix				{ Node *f= pop();  push(Sequence_append(pop(), f)); }
+sequence=	error (error				{ Node *f= pop();  push(Sequence_append(pop(), f)); }
 			  )*
+
+error=		prefix  (TILDE action			{ push(makeError(pop(), yytext)); }
+			)?
 
 prefix=		AND action				{ push(makePredicate(yytext)); }
 |		AND suffix				{ push(makePeekFor(pop())); }
@@ -84,8 +87,7 @@ suffix=		primary (QUESTION			{ push(makeQuery(pop())); }
 			| PLUS			        { push(makePlus (pop())); }
 			)?
 
-primary=	(
-                identifier				{ push(makeVariable(yytext)); }
+primary=	identifier				{ push(makeVariable(yytext)); }
 		COLON identifier !EQUAL			{ Node *name= makeName(findRule(yytext, 0));  name->name.variable= pop();  push(name); }
 |		identifier !EQUAL			{ push(makeName(findRule(yytext, 0))); }
 |		OPEN expression CLOSE
@@ -95,7 +97,6 @@ primary=	(
 |		action					{ push(makeAction(yytext)); }
 |		BEGIN					{ push(makePredicate("YY_BEGIN")); }
 |		END					{ push(makePredicate("YY_END")); }
-                ) (errblock { Node *node = pop(); ((struct Any *) node)->errblock = strdup(yytext); push(node); })?
 
 # Lexical syntax
 
@@ -108,7 +109,7 @@ class=		'[' < ( !']' range )* > ']' -
 
 range=		char '-' char | char
 
-char=		'\\' [abefnrtv'"\[\]\\]
+char=		'\\' [-abefnrtv'"\[\]\\]
 |		'\\' 'x'[0-9A-Fa-f][0-9A-Fa-f]
 |		'\\' 'x'[0-9A-Fa-f]
 |		'\\' [0-3][0-7][0-7]
@@ -116,7 +117,6 @@ char=		'\\' [abefnrtv'"\[\]\\]
 |		!'\\' .
 
 
-errblock=       '~{' < braces* > '}' -
 action=		'{' < braces* > '}' -
 
 braces=		'{' braces* '}'
@@ -136,6 +136,7 @@ CLOSE=		')' -
 DOT=		'.' -
 BEGIN=		'<' -
 END=		'>' -
+TILDE=		'~' -
 RPERCENT=	'%}' -
 
 -=		(space | comment)*
@@ -223,10 +224,8 @@ int main(int argc, char **argv)
 
   G = yyparse_new(NULL);
 #ifdef YY_DEBUG
-  if (verboseFlag > 0) {
-    yydebug = YYDEBUG_PARSE;
-    if (verboseFlag > 1)
-      yydebug = YYDEBUG_PARSE + YYDEBUG_VERBOSE;
+  if (verboseFlag > 0) { yydebug = YYDEBUG_PARSE;
+    if (verboseFlag > 1) yydebug = YYDEBUG_PARSE + YYDEBUG_VERBOSE;
   }
 #endif
 

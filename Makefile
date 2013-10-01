@@ -72,6 +72,8 @@ test: samples run
 	diff samples/test.out samples/test.ref
 	cat samples/wc.leg | samples/wc > samples/wc.out
 	diff samples/wc.out samples/wc.ref
+	echo '6*9' | samples/erract | tee samples/erract.out
+	diff samples/erract.out samples/erract.ref
 
 run: greg
 	mkdir -p selftest
