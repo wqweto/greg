@@ -38,6 +38,18 @@
 
   static char	*trailer= 0;
   static Header	*headers= 0;
+  static char   *deftrailer= "\n\
+#ifdef YY_MAIN\n\
+int main()\n\
+{\n\
+  GREG g;\n\
+  yyinit(&g);\n\
+  while (yyparse(&g));\n\
+  yydeinit(&g);\n\
+  return 0;\n\
+}\n\
+#endif\n\
+";
 
   void makeHeader(char *text);
   void makeTrailer(char *text);
@@ -89,7 +101,7 @@ primary=	(
 
 identifier=	< [-a-zA-Z_][-a-zA-Z_0-9]* > -
 
-literal=	['] < ( !['] char )* > ['] -
+literal=	['] < ( !['] char )* > ['] -   #'
 |		["] < ( !["] char )* > ["] -
 
 class=		'[' < ( !']' range )* > ']' -
@@ -208,8 +220,6 @@ int main(int argc, char **argv)
   argv += optind;
 
   G = yyparse_new(NULL);
-  G->lineno= 1;
-  G->filename= "-";
 #ifdef YY_DEBUG
   if (verboseFlag > 0) {
     yydebug = YYDEBUG_PARSE;
@@ -263,9 +273,12 @@ int main(int argc, char **argv)
   }
 
   if (trailer) {
-    fprintf(output, "%s\n", trailer);
+    fputs(trailer, output);
+    fputs("\n", output);
     free(trailer);
   }
+  else
+    fputs(deftrailer, output);
 
   return 0;
 }

@@ -1,3 +1,13 @@
 # Grammar
 
 S	= (S 'a' | 'a') !'a'
+
+%%
+
+int main()
+{
+  GREG g;
+  yyinit(&g);
+  printf(yyparse(&g) ? "success\n" : "failure\n");
+  return 0;
+}

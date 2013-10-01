@@ -23,6 +23,18 @@ struct _GREG;
 
   static char	*trailer= 0;
   static Header	*headers= 0;
+  static char   *deftrailer= "\n\
+#ifdef YY_MAIN\n\
+int main()\n\
+{\n\
+  GREG g;\n\
+  yyinit(&g);\n\
+  while (yyparse(&g));\n\
+  yydeinit(&g);\n\
+  return 0;\n\
+}\n\
+#endif\n\
+";
 
   void makeHeader(char *text);
   void makeTrailer(char *text);
@@ -214,7 +226,7 @@ YY_LOCAL(void) yyprintcontext(struct _GREG *G, FILE *stream, char *s)
 
 YY_LOCAL(void) yyerror(struct _GREG *G, char *message)
 {
-  fprintf(stderr, "%s:%d: %s", G->filename, G->lineno, message);
+  fputs(message, stderr);
   if (G->text[0]) fprintf(stderr, " near token '%s'", G->text);
   if (G->pos < G->limit || !feof(G->input))
     {
@@ -226,14 +238,14 @@ YY_LOCAL(void) yyerror(struct _GREG *G, char *message)
 	  fputc(G->buf[G->pos++], stderr);
 	}
       if (G->pos == G->limit)
-	{
+        {
 	  int c;
 	  while (EOF != (c= fgetc(G->input)) && '\n' != c && '\r' != c)
 	    fputc(c, stderr);
 	}
       fputc('\"', stderr);
     }
-  fprintf(stderr, "\n");
+  fprintf(stderr, " at %s:%d\n", G->filename, G->lineno);
   exit(1);
 }
 
@@ -810,8 +822,13 @@ YY_RULE(int) yy_errblock(GREG *G)
   yyprintfv((stderr, "%s\n", "errblock"));
   if (!yymatchString(G, "~{")) goto l31;
   yyText(G, G->begin, G->end);
-  if (!(YY_BEGIN)) goto l31;
-
+  {
+    #define yytext G->text
+    #define yyleng G->textlen
+    if (!(YY_BEGIN)) goto l31;
+    #undef yytext
+    #undef yyleng
+  }
   l32:
   {
     int yypos33= G->pos, yythunkpos33= G->thunkpos;
@@ -821,8 +838,13 @@ YY_RULE(int) yy_errblock(GREG *G)
     G->pos= yypos33; G->thunkpos= yythunkpos33;
   }
   yyText(G, G->begin, G->end);
-  if (!(YY_END)) goto l31;
-  if (!yymatchChar(G, '}')) goto l31;
+  {
+    #define yytext G->text
+    #define yyleng G->textlen
+    if (!(YY_END)) goto l31;
+    #undef yytext
+    #undef yyleng
+  }  if (!yymatchChar(G, '}')) goto l31;
   if (!yy__(G))   goto l31;
   yyprintfokrule("errblock");
   return 1;
@@ -876,8 +898,13 @@ YY_RULE(int) yy_class(GREG *G)
   yyprintfv((stderr, "%s\n", "class"));
   if (!yymatchChar(G, '[')) goto l37;
   yyText(G, G->begin, G->end);
-  if (!(YY_BEGIN)) goto l37;
-
+  {
+    #define yytext G->text
+    #define yyleng G->textlen
+    if (!(YY_BEGIN)) goto l37;
+    #undef yytext
+    #undef yyleng
+  }
   l38:
   {
     int yypos39= G->pos, yythunkpos39= G->thunkpos;
@@ -894,8 +921,13 @@ YY_RULE(int) yy_class(GREG *G)
     G->pos= yypos39; G->thunkpos= yythunkpos39;
   }
   yyText(G, G->begin, G->end);
-  if (!(YY_END)) goto l37;
-  if (!yymatchChar(G, ']')) goto l37;
+  {
+    #define yytext G->text
+    #define yyleng G->textlen
+    if (!(YY_END)) goto l37;
+    #undef yytext
+    #undef yyleng
+  }  if (!yymatchChar(G, ']')) goto l37;
   if (!yy__(G))   goto l37;
   yyprintfokrule("class");
   return 1;
@@ -912,8 +944,13 @@ YY_RULE(int) yy_literal(GREG *G)
     int yypos42= G->pos, yythunkpos42= G->thunkpos;
     if (!yymatchClass(G, (unsigned char *)"\000\000\000\000\200\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000", "'")) goto l43;
     yyText(G, G->begin, G->end);
-  if (!(YY_BEGIN)) goto l43;
-
+  {
+    #define yytext G->text
+    #define yyleng G->textlen
+    if (!(YY_BEGIN)) goto l43;
+    #undef yytext
+    #undef yyleng
+  }
     l44:
     {
       int yypos45= G->pos, yythunkpos45= G->thunkpos;
@@ -930,16 +967,26 @@ YY_RULE(int) yy_literal(GREG *G)
       G->pos= yypos45; G->thunkpos= yythunkpos45;
     }
     yyText(G, G->begin, G->end);
-  if (!(YY_END)) goto l43;
-    if (!yymatchClass(G, (unsigned char *)"\000\000\000\000\200\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000", "'")) goto l43;
+  {
+    #define yytext G->text
+    #define yyleng G->textlen
+    if (!(YY_END)) goto l43;
+    #undef yytext
+    #undef yyleng
+  }    if (!yymatchClass(G, (unsigned char *)"\000\000\000\000\200\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000", "'")) goto l43;
     if (!yy__(G))     goto l43;
     goto l42;
     l43:
     G->pos= yypos42; G->thunkpos= yythunkpos42;
     if (!yymatchClass(G, (unsigned char *)"\000\000\000\000\004\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000", "\"")) goto l41;
     yyText(G, G->begin, G->end);
-  if (!(YY_BEGIN)) goto l41;
-
+  {
+    #define yytext G->text
+    #define yyleng G->textlen
+    if (!(YY_BEGIN)) goto l41;
+    #undef yytext
+    #undef yyleng
+  }
     l47:
     {
       int yypos48= G->pos, yythunkpos48= G->thunkpos;
@@ -956,8 +1003,13 @@ YY_RULE(int) yy_literal(GREG *G)
       G->pos= yypos48; G->thunkpos= yythunkpos48;
     }
     yyText(G, G->begin, G->end);
-  if (!(YY_END)) goto l41;
-    if (!yymatchClass(G, (unsigned char *)"\000\000\000\000\004\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000", "\"")) goto l41;
+  {
+    #define yytext G->text
+    #define yyleng G->textlen
+    if (!(YY_END)) goto l41;
+    #undef yytext
+    #undef yyleng
+  }    if (!yymatchClass(G, (unsigned char *)"\000\000\000\000\004\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000", "\"")) goto l41;
     if (!yy__(G))     goto l41;
   }
 
@@ -1191,8 +1243,13 @@ YY_RULE(int) yy_action(GREG *G)
   yyprintfv((stderr, "%s\n", "action"));
   if (!yymatchChar(G, '{')) goto l77;
   yyText(G, G->begin, G->end);
-  if (!(YY_BEGIN)) goto l77;
-
+  {
+    #define yytext G->text
+    #define yyleng G->textlen
+    if (!(YY_BEGIN)) goto l77;
+    #undef yytext
+    #undef yyleng
+  }
   l78:
   {
     int yypos79= G->pos, yythunkpos79= G->thunkpos;
@@ -1202,8 +1259,13 @@ YY_RULE(int) yy_action(GREG *G)
     G->pos= yypos79; G->thunkpos= yythunkpos79;
   }
   yyText(G, G->begin, G->end);
-  if (!(YY_END)) goto l77;
-  if (!yymatchChar(G, '}')) goto l77;
+  {
+    #define yytext G->text
+    #define yyleng G->textlen
+    if (!(YY_END)) goto l77;
+    #undef yytext
+    #undef yyleng
+  }  if (!yymatchChar(G, '}')) goto l77;
   if (!yy__(G))   goto l77;
   yyprintfokrule("action");
   return 1;
@@ -1349,8 +1411,13 @@ YY_RULE(int) yy_identifier(GREG *G)
   int yypos0= G->pos, yythunkpos0= G->thunkpos;
   yyprintfv((stderr, "%s\n", "identifier"));
   yyText(G, G->begin, G->end);
-  if (!(YY_BEGIN)) goto l95;
-  if (!yymatchClass(G, (unsigned char *)"\000\000\000\000\000\040\000\000\376\377\377\207\376\377\377\007\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000", "-a-zA-Z_")) goto l95;
+  {
+    #define yytext G->text
+    #define yyleng G->textlen
+    if (!(YY_BEGIN)) goto l95;
+    #undef yytext
+    #undef yyleng
+  }  if (!yymatchClass(G, (unsigned char *)"\000\000\000\000\000\040\000\000\376\377\377\207\376\377\377\007\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000", "-a-zA-Z_")) goto l95;
 
   l96:
   {
@@ -1361,8 +1428,13 @@ YY_RULE(int) yy_identifier(GREG *G)
     G->pos= yypos97; G->thunkpos= yythunkpos97;
   }
   yyText(G, G->begin, G->end);
-  if (!(YY_END)) goto l95;
-  if (!yy__(G))   goto l95;
+  {
+    #define yytext G->text
+    #define yyleng G->textlen
+    if (!(YY_END)) goto l95;
+    #undef yytext
+    #undef yyleng
+  }  if (!yy__(G))   goto l95;
   yyprintfokrule("identifier");
   return 1;
   l95:
@@ -1407,8 +1479,13 @@ YY_RULE(int) yy_trailer(GREG *G)
   yyprintfv((stderr, "%s\n", "trailer"));
   if (!yymatchString(G, "%%")) goto l101;
   yyText(G, G->begin, G->end);
-  if (!(YY_BEGIN)) goto l101;
-
+  {
+    #define yytext G->text
+    #define yyleng G->textlen
+    if (!(YY_BEGIN)) goto l101;
+    #undef yytext
+    #undef yyleng
+  }
   l102:
   {
     int yypos103= G->pos, yythunkpos103= G->thunkpos;
@@ -1418,8 +1495,13 @@ YY_RULE(int) yy_trailer(GREG *G)
     G->pos= yypos103; G->thunkpos= yythunkpos103;
   }
   yyText(G, G->begin, G->end);
-  if (!(YY_END)) goto l101;
-  yyDo(G, yy_1_trailer, G->begin, G->end, "yy_1_trailer");
+  {
+    #define yytext G->text
+    #define yyleng G->textlen
+    if (!(YY_END)) goto l101;
+    #undef yytext
+    #undef yyleng
+  }  yyDo(G, yy_1_trailer, G->begin, G->end, "yy_1_trailer");
   yyprintfokrule("trailer");
   return 1;
   l101:
@@ -1462,8 +1544,13 @@ YY_RULE(int) yy_declaration(GREG *G)
   yyprintfv((stderr, "%s\n", "declaration"));
   if (!yymatchString(G, "%{")) goto l107;
   yyText(G, G->begin, G->end);
-  if (!(YY_BEGIN)) goto l107;
-
+  {
+    #define yytext G->text
+    #define yyleng G->textlen
+    if (!(YY_BEGIN)) goto l107;
+    #undef yytext
+    #undef yyleng
+  }
   l108:
   {
     int yypos109= G->pos, yythunkpos109= G->thunkpos;
@@ -1480,8 +1567,13 @@ YY_RULE(int) yy_declaration(GREG *G)
     G->pos= yypos109; G->thunkpos= yythunkpos109;
   }
   yyText(G, G->begin, G->end);
-  if (!(YY_END)) goto l107;
-  if (!yy_RPERCENT(G))   goto l107;
+  {
+    #define yytext G->text
+    #define yyleng G->textlen
+    if (!(YY_END)) goto l107;
+    #undef yytext
+    #undef yyleng
+  }  if (!yy_RPERCENT(G))   goto l107;
   yyDo(G, yy_1_declaration, G->begin, G->end, "yy_1_declaration");
   yyprintfokrule("declaration");
   return 1;
@@ -1623,7 +1715,10 @@ YY_PARSE(GREG *) YY_NAME(parse_new)(YY_XTYPE data)
 }
 YY_PARSE(void) YY_NAME(init)(GREG *G)
 {
-    memcpy(G,YY_NAME(parse_new)(NULL),sizeof(GREG));
+  memset(G, 0, sizeof(GREG));
+  G->input= stdin;
+  G->lineno= 1;
+  G->filename= "-";
 }
 
 YY_PARSE(void) YY_NAME(deinit)(GREG *G)
@@ -1718,8 +1813,6 @@ int main(int argc, char **argv)
   argv += optind;
 
   G = yyparse_new(NULL);
-  G->lineno= 1;
-  G->filename= "-";
 #ifdef YY_DEBUG
   if (verboseFlag > 0) {
     yydebug = YYDEBUG_PARSE;
@@ -1773,9 +1866,12 @@ int main(int argc, char **argv)
   }
 
   if (trailer) {
-    fprintf(output, "%s\n", trailer);
+    fputs(trailer, output);
+    fputs("\n", output);
     free(trailer);
   }
+  else
+    fputs(deftrailer, output);
 
   return 0;
 }

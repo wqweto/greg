@@ -260,7 +260,15 @@ static void Node_compile_c_ko(Node *node, int ko)
 
     case Predicate:
       pindent();
-      fprintf(output, "  yyText(G, G->begin, G->end);\n  if (!(%s)) goto l%d;\n", node->action.text, ko);
+      //fprintf(output, "  yyText(G, G->begin, G->end);\n  if (!(%s)) goto l%d;\n", node->action.text, ko);
+      /* predicates have access to yytext */
+      fprintf(output, "  yyText(G, G->begin, G->end);\n  {\n");
+      fprintf(output, "    #define yytext G->text\n");
+      fprintf(output, "    #define yyleng G->textlen\n");
+      fprintf(output, "    if (!(%s)) goto l%d;\n", node->action.text, ko);
+      fprintf(output, "    #undef yytext\n");
+      fprintf(output, "    #undef yyleng\n");
+      fprintf(output, "  }");
       break;
 
     case Alternate:
@@ -644,7 +652,7 @@ YY_LOCAL(void) yyprintcontext(struct _GREG *G, FILE *stream, char *s)\n\
 \n\
 YY_LOCAL(void) yyerror(struct _GREG *G, char *message)\n\
 {\n\
-  fprintf(stderr, \"%s:%d: %s\", G->filename, G->lineno, message);\n\
+  fputs(message, stderr);\n\
   if (G->text[0]) fprintf(stderr, \" near token '%s'\", G->text);\n\
   if (G->pos < G->limit || !feof(G->input))\n\
     {\n\
@@ -656,14 +664,14 @@ YY_LOCAL(void) yyerror(struct _GREG *G, char *message)\n\
 	  fputc(G->buf[G->pos++], stderr);\n\
 	}\n\
       if (G->pos == G->limit)\n\
-	{\n\
+        {\n\
 	  int c;\n\
 	  while (EOF != (c= fgetc(G->input)) && '\\n' != c && '\\r' != c)\n\
 	    fputc(c, stderr);\n\
 	}\n\
       fputc('\\\"', stderr);\n\
     }\n\
-  fprintf(stderr, \"\\n\");\n\
+  fprintf(stderr, \" at %s:%d\\n\", G->filename, G->lineno);\n\
   exit(1);\n\
 }\n\
 \n\
@@ -899,7 +907,10 @@ YY_PARSE(GREG *) YY_NAME(parse_new)(YY_XTYPE data)\n\
 }\n\
 YY_PARSE(void) YY_NAME(init)(GREG *G)\n\
 {\n\
-    memcpy(G,YY_NAME(parse_new)(NULL),sizeof(GREG));\n\
+  memset(G, 0, sizeof(GREG));\n\
+  G->input= stdin;\n\
+  G->lineno= 1;\n\
+  G->filename= \"-\";\n\
 }\n\
 \n\
 YY_PARSE(void) YY_NAME(deinit)(GREG *G)\n\

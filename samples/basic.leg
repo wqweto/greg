@@ -39,7 +39,7 @@
 
 # define min(x, y) ((x) < (y) ? (x) : (y))
 
-# define YY_INPUT(buf, result, max_size, D)	\
+# define YY_INPUT(buf, result, max_size)	\
   {						\
     if ((pc >= 0) && (pc < numLines))		\
       {						\

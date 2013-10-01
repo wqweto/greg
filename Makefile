@@ -1,8 +1,9 @@
-OFLAGS = -O3 -DNDEBUG
-CFLAGS = -g -Wall $(OFLAGS) $(XFLAGS)
+OFLAGS = -O3 -DNDEBUG -DYY_MAIN
+CFLAGS = -g -Wall -Wno-unused-function $(OFLAGS) $(XFLAGS)
 #OFLAGS = -pg
 
 SRCS = tree.c compile.c
+SAMPLES = $(wildcard samples/*.leg)
 
 all : greg
 
@@ -39,7 +40,7 @@ grammar : .FORCE
 	./greg -o greg.c greg.g
 
 clean : .FORCE
-	rm -rf *~ *.o *.greg.[cd] greg samples/*.o samples/calc samples/*.dSYM testing1.c testing2.c *.dSYM selftest/
+	rm -rf *~ *.o *.greg.[cd] greg ${SAMPLES:.leg=.o} ${SAMPLES:.leg=} ${SAMPLES:.leg=.c} samples/*.dSYM testing1.c testing2.c *.dSYM selftest/
 
 spotless : clean .FORCE
 	rm -f greg
@@ -49,6 +50,13 @@ samples/calc.c: samples/calc.leg greg
 
 samples/calc: samples/calc.c
 	$(CC) $(CFLAGS) -o $@ $<
+
+samples: ${SAMPLES:.leg=} greg
+
+%.c: %.leg
+	./greg $< > $@
+.leg.c:
+	./greg $< > $@
 
 test: samples/calc run
 	echo '21 * 2 + 0' | ./samples/calc | grep 42
