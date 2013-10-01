@@ -463,126 +463,162 @@ YY_ACTION(void) yy_9_primary(GREG *G, char *yytext, int yyleng, yythunk *thunk, 
   yyprintf((stderr, "do yy_9_primary"));
   yyprintfvTcontext(yytext);
   yyprintf((stderr, "\n  {push(makePredicate(\"YY_END\")); }\n"));
-  push(makePredicate("YY_END")); ;
+  {
+    push(makePredicate("YY_END")); ;
+  }
 }
 YY_ACTION(void) yy_8_primary(GREG *G, char *yytext, int yyleng, yythunk *thunk, YY_XTYPE YY_XVAR)
 {
   yyprintf((stderr, "do yy_8_primary"));
   yyprintfvTcontext(yytext);
   yyprintf((stderr, "\n  {push(makePredicate(\"YY_BEGIN\")); }\n"));
-  push(makePredicate("YY_BEGIN")); ;
+  {
+    push(makePredicate("YY_BEGIN")); ;
+  }
 }
 YY_ACTION(void) yy_7_primary(GREG *G, char *yytext, int yyleng, yythunk *thunk, YY_XTYPE YY_XVAR)
 {
   yyprintf((stderr, "do yy_7_primary"));
   yyprintfvTcontext(yytext);
   yyprintf((stderr, "\n  {push(makeAction(yytext)); }\n"));
-  push(makeAction(yytext)); ;
+  {
+    push(makeAction(yytext)); ;
+  }
 }
 YY_ACTION(void) yy_6_primary(GREG *G, char *yytext, int yyleng, yythunk *thunk, YY_XTYPE YY_XVAR)
 {
   yyprintf((stderr, "do yy_6_primary"));
   yyprintfvTcontext(yytext);
   yyprintf((stderr, "\n  {push(makeDot()); }\n"));
-  push(makeDot()); ;
+  {
+    push(makeDot()); ;
+  }
 }
 YY_ACTION(void) yy_5_primary(GREG *G, char *yytext, int yyleng, yythunk *thunk, YY_XTYPE YY_XVAR)
 {
   yyprintf((stderr, "do yy_5_primary"));
   yyprintfvTcontext(yytext);
   yyprintf((stderr, "\n  {push(makeClass(yytext)); }\n"));
-  push(makeClass(yytext)); ;
+  {
+    push(makeClass(yytext)); ;
+  }
 }
 YY_ACTION(void) yy_4_primary(GREG *G, char *yytext, int yyleng, yythunk *thunk, YY_XTYPE YY_XVAR)
 {
   yyprintf((stderr, "do yy_4_primary"));
   yyprintfvTcontext(yytext);
   yyprintf((stderr, "\n  {push(makeString(yytext)); }\n"));
-  push(makeString(yytext)); ;
+  {
+    push(makeString(yytext)); ;
+  }
 }
 YY_ACTION(void) yy_3_primary(GREG *G, char *yytext, int yyleng, yythunk *thunk, YY_XTYPE YY_XVAR)
 {
   yyprintf((stderr, "do yy_3_primary"));
   yyprintfvTcontext(yytext);
   yyprintf((stderr, "\n  {push(makeName(findRule(yytext, 0))); }\n"));
-  push(makeName(findRule(yytext, 0))); ;
+  {
+    push(makeName(findRule(yytext, 0))); ;
+  }
 }
 YY_ACTION(void) yy_2_primary(GREG *G, char *yytext, int yyleng, yythunk *thunk, YY_XTYPE YY_XVAR)
 {
   yyprintf((stderr, "do yy_2_primary"));
   yyprintfvTcontext(yytext);
   yyprintf((stderr, "\n  {Node *name= makeName(findRule(yytext, 0));  name->name.variable= pop();  push(name); }\n"));
-  Node *name= makeName(findRule(yytext, 0));  name->name.variable= pop();  push(name); ;
+  {
+    Node *name= makeName(findRule(yytext, 0));  name->name.variable= pop();  push(name); ;
+  }
 }
 YY_ACTION(void) yy_1_primary(GREG *G, char *yytext, int yyleng, yythunk *thunk, YY_XTYPE YY_XVAR)
 {
   yyprintf((stderr, "do yy_1_primary"));
   yyprintfvTcontext(yytext);
   yyprintf((stderr, "\n  {push(makeVariable(yytext)); }\n"));
-  push(makeVariable(yytext)); ;
+  {
+    push(makeVariable(yytext)); ;
+  }
 }
 YY_ACTION(void) yy_3_suffix(GREG *G, char *yytext, int yyleng, yythunk *thunk, YY_XTYPE YY_XVAR)
 {
   yyprintf((stderr, "do yy_3_suffix"));
   yyprintfvTcontext(yytext);
   yyprintf((stderr, "\n  {push(makePlus (pop())); }\n"));
-  push(makePlus (pop())); ;
+  {
+    push(makePlus (pop())); ;
+  }
 }
 YY_ACTION(void) yy_2_suffix(GREG *G, char *yytext, int yyleng, yythunk *thunk, YY_XTYPE YY_XVAR)
 {
   yyprintf((stderr, "do yy_2_suffix"));
   yyprintfvTcontext(yytext);
   yyprintf((stderr, "\n  {push(makeStar (pop())); }\n"));
-  push(makeStar (pop())); ;
+  {
+    push(makeStar (pop())); ;
+  }
 }
 YY_ACTION(void) yy_1_suffix(GREG *G, char *yytext, int yyleng, yythunk *thunk, YY_XTYPE YY_XVAR)
 {
   yyprintf((stderr, "do yy_1_suffix"));
   yyprintfvTcontext(yytext);
   yyprintf((stderr, "\n  {push(makeQuery(pop())); }\n"));
-  push(makeQuery(pop())); ;
+  {
+    push(makeQuery(pop())); ;
+  }
 }
 YY_ACTION(void) yy_3_prefix(GREG *G, char *yytext, int yyleng, yythunk *thunk, YY_XTYPE YY_XVAR)
 {
   yyprintf((stderr, "do yy_3_prefix"));
   yyprintfvTcontext(yytext);
   yyprintf((stderr, "\n  {push(makePeekNot(pop())); }\n"));
-  push(makePeekNot(pop())); ;
+  {
+    push(makePeekNot(pop())); ;
+  }
 }
 YY_ACTION(void) yy_2_prefix(GREG *G, char *yytext, int yyleng, yythunk *thunk, YY_XTYPE YY_XVAR)
 {
   yyprintf((stderr, "do yy_2_prefix"));
   yyprintfvTcontext(yytext);
   yyprintf((stderr, "\n  {push(makePeekFor(pop())); }\n"));
-  push(makePeekFor(pop())); ;
+  {
+    push(makePeekFor(pop())); ;
+  }
 }
 YY_ACTION(void) yy_1_prefix(GREG *G, char *yytext, int yyleng, yythunk *thunk, YY_XTYPE YY_XVAR)
 {
   yyprintf((stderr, "do yy_1_prefix"));
   yyprintfvTcontext(yytext);
   yyprintf((stderr, "\n  {push(makePredicate(yytext)); }\n"));
-  push(makePredicate(yytext)); ;
+  {
+    push(makePredicate(yytext)); ;
+  }
 }
 YY_ACTION(void) yy_1_error(GREG *G, char *yytext, int yyleng, yythunk *thunk, YY_XTYPE YY_XVAR)
 {
   yyprintf((stderr, "do yy_1_error"));
   yyprintfvTcontext(yytext);
   yyprintf((stderr, "\n  {push(makeError(pop(), yytext)); }\n"));
-  push(makeError(pop(), yytext)); ;
+  {
+    push(makeError(pop(), yytext)); ;
+  }
 }
 YY_ACTION(void) yy_1_sequence(GREG *G, char *yytext, int yyleng, yythunk *thunk, YY_XTYPE YY_XVAR)
 {
   yyprintf((stderr, "do yy_1_sequence"));
   yyprintfvTcontext(yytext);
   yyprintf((stderr, "\n  {Node *f= pop();  push(Sequence_append(pop(), f)); }\n"));
-  Node *f= pop();  push(Sequence_append(pop(), f)); ;
+  {
+    Node *f= pop();  push(Sequence_append(pop(), f)); ;
+  }
 }
 YY_ACTION(void) yy_1_expression(GREG *G, char *yytext, int yyleng, yythunk *thunk, YY_XTYPE YY_XVAR)
 {
   yyprintf((stderr, "do yy_1_expression"));
   yyprintfvTcontext(yytext);
   yyprintf((stderr, "\n  {Node *f= pop();  push(Alternate_append(pop(), f)); }\n"));
-  Node *f= pop();  push(Alternate_append(pop(), f)); ;
+  {
+    Node *f= pop();  push(Alternate_append(pop(), f)); ;
+  }
 }
 YY_ACTION(void) yy_2_definition(GREG *G, char *yytext, int yyleng, yythunk *thunk, YY_XTYPE YY_XVAR)
 {
@@ -590,7 +626,9 @@ YY_ACTION(void) yy_2_definition(GREG *G, char *yytext, int yyleng, yythunk *thun
   yyprintf((stderr, "do yy_2_definition"));
   yyprintfvTcontext(yytext);
   yyprintf((stderr, "\n  {Node *e= pop();  Rule_setExpression(pop(), e); }\n"));
-  Node *e= pop();  Rule_setExpression(pop(), e); ;
+  {
+    Node *e= pop();  Rule_setExpression(pop(), e); ;
+  }
   #undef s
 }
 YY_ACTION(void) yy_1_definition(GREG *G, char *yytext, int yyleng, yythunk *thunk, YY_XTYPE YY_XVAR)
@@ -600,8 +638,10 @@ YY_ACTION(void) yy_1_definition(GREG *G, char *yytext, int yyleng, yythunk *thun
   yyprintfvTcontext(yytext);
   yyprintf((stderr, "\n  {if (push(beginRule(findRule(yytext, s)))->rule.expression)\n\
 \t\t\t\t\t\t\t    fprintf(stderr, \"rule '%%s' redefined\\n\", yytext); }\n"));
-  if (push(beginRule(findRule(yytext, s)))->rule.expression)
+  {
+    if (push(beginRule(findRule(yytext, s)))->rule.expression)
 							    fprintf(stderr, "rule '%s' redefined\n", yytext); ;
+  }
   #undef s
 }
 YY_ACTION(void) yy_1_trailer(GREG *G, char *yytext, int yyleng, yythunk *thunk, YY_XTYPE YY_XVAR)
@@ -609,14 +649,18 @@ YY_ACTION(void) yy_1_trailer(GREG *G, char *yytext, int yyleng, yythunk *thunk, 
   yyprintf((stderr, "do yy_1_trailer"));
   yyprintfvTcontext(yytext);
   yyprintf((stderr, "\n  {makeTrailer(yytext); }\n"));
-  makeTrailer(yytext); ;
+  {
+    makeTrailer(yytext); ;
+  }
 }
 YY_ACTION(void) yy_1_declaration(GREG *G, char *yytext, int yyleng, yythunk *thunk, YY_XTYPE YY_XVAR)
 {
   yyprintf((stderr, "do yy_1_declaration"));
   yyprintfvTcontext(yytext);
   yyprintf((stderr, "\n  {makeHeader(yytext); }\n"));
-  makeHeader(yytext); ;
+  {
+    makeHeader(yytext); ;
+  }
 }
 
 YY_RULE(int) yy_end_of_line(GREG *G)

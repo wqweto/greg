@@ -1033,7 +1033,9 @@ void Rule_compile_c(Node *node)
       tmp = yyqq(block);
       fprintf(output, "  yyprintf((stderr, \"\\n  {%s}\\n\"));\n", tmp);
       if (tmp != block) YY_FREE(tmp);
-      fprintf(output, "  %s;\n", block);
+      fprintf(output, "  {\n");
+      fprintf(output, "    %s;\n", block);
+      fprintf(output, "  }\n");
       undefineVariables(n->action.rule->rule.variables);
       fprintf(output, "}\n");
     }
