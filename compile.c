@@ -71,14 +71,14 @@ static int readChar(unsigned char **cp)
 	{
           switch (c= *cclass++)
 	    {
-            case 'a':  c= '\a'; break;	/* bel */
-            case 'b':  c= '\b'; break;	/* bs */
-            case 'e':  c= '\e'; break;	/* esc */
-            case 'f':  c= '\f'; break;	/* ff */
-            case 'n':  c= '\n'; break;	/* nl */
-            case 'r':  c= '\r'; break;	/* cr */
-            case 't':  c= '\t'; break;	/* ht */
-            case 'v':  c= '\v'; break;	/* vt */
+            case 'a':  c= '\a';   break;	/* bel */
+            case 'b':  c= '\b';   break;	/* bs */
+            case 'e':  c= '\033'; break;	/* esc */
+            case 'f':  c= '\f';   break;	/* ff */
+            case 'n':  c= '\n';   break;	/* nl */
+            case 'r':  c= '\r';   break;	/* cr */
+            case 't':  c= '\t';   break;	/* ht */
+            case 'v':  c= '\v';   break;	/* vt */
             case 'x':
               c= 0;
               if (higit(*cclass)) c= (c << 4) + hexval(*cclass++);
