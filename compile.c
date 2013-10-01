@@ -899,7 +899,7 @@ YY_PARSE(GREG *) YY_NAME(parse_new)(YY_XTYPE data)\n\
 }\n\
 YY_PARSE(void) YY_NAME(init)(GREG *G)\n\
 {\n\
-    memcpy(G,yyparse_new(NULL),sizeof(GREG));\n\
+    memcpy(G,YY_NAME(parse_new)(NULL),sizeof(GREG));\n\
 }\n\
 \n\
 YY_PARSE(void) YY_NAME(deinit)(GREG *G)\n\

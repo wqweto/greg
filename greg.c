@@ -1623,7 +1623,7 @@ YY_PARSE(GREG *) YY_NAME(parse_new)(YY_XTYPE data)
 }
 YY_PARSE(void) YY_NAME(init)(GREG *G)
 {
-    memcpy(G,yyparse_new(NULL),sizeof(GREG));
+    memcpy(G,YY_NAME(parse_new)(NULL),sizeof(GREG));
 }
 
 YY_PARSE(void) YY_NAME(deinit)(GREG *G)
