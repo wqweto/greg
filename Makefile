@@ -58,8 +58,20 @@ samples: ${SAMPLES:.leg=} greg
 .leg.c:
 	./greg $< > $@
 
-test: samples/calc run
-	echo '21 * 2 + 0' | ./samples/calc | grep 42
+test: samples run
+	echo 'abcbcdabcbcdabcbcdabcbcd' | samples/accept | tee samples/accept.out
+	diff samples/accept.out samples/accept.ref
+	echo 'abcbcdabcbcdabcbcdabcbcd' | samples/rule | tee samples/rule.out
+	diff samples/rule.out samples/rule.ref
+	echo '21 * 2 + 0' | samples/calc | grep 42
+	echo 'a = 6;  b = 7;  a * b' | samples/calc | grep 42
+	echo '  2  *3 *(3+ 4) ' | samples/dc   | grep 42
+	echo 'a = 6;  b = 7;  a * b' | samples/dcv  | grep 42
+	echo 'print 2 * 21 + 0' | samples/basic | grep 42
+	echo 'ab.ac.ad.ae.afg.afh.afg.afh.afi.afj.' | samples/test | tee samples/test.out
+	diff samples/test.out samples/test.ref
+	cat samples/wc.leg | samples/wc > samples/wc.out
+	diff samples/wc.out samples/wc.ref
 
 run: greg
 	mkdir -p selftest
