@@ -50,43 +50,52 @@ static void charClassClear(unsigned char bits[], int c)	{ bits[c >> 3] &= ~(1 <<
 
 typedef void (*setter)(unsigned char bits[], int c);
 
+static inline int oigit(int c)	{ return ('0' <= c && c <= '7'); }
+static inline int higit(int c)	{ return ('0' <= c && c <= '9') || ('A' <= c && c <= 'F') || ('a' <= c && c <= 'f'); }
+
+static inline int hexval(int c)
+{
+    if ('0' <= c && c <= '9') return c - '0';
+    if ('A' <= c && c <= 'F') return 10 - 'A' + c;
+    if ('a' <= c && c <= 'f') return 10 - 'a' + c;
+    return 0;
+}
+
 static int readChar(unsigned char **cp)
 {
-  unsigned char *cclass = *cp;
-  int c= *cclass++, i = 0;
-  if ('\\' == c && *cclass)
-  {
-    c= *cclass++;
-    if (c >= '0' && c <= '9')
-      {
-        unsigned char oct= 0;
-        for (i= 2; i >= 0; i--) {
-          if (!(c >= '0' && c <= '9'))
-            break;
-          oct= (oct * 8) + (c - '0');
-          c= *cclass++;
-        }
-        cclass--;
-        c= oct;
-        goto done;
-      }
-
-    switch (c)
-      {
-      case 'a':  c= '\a'; break;	/* bel */
-      case 'b':  c= '\b'; break;	/* bs */
-      case 'e':  c= '\e'; break;	/* esc */
-      case 'f':  c= '\f'; break;	/* ff */
-      case 'n':  c= '\n'; break;	/* nl */
-      case 'r':  c= '\r'; break;	/* cr */
-      case 't':  c= '\t'; break;	/* ht */
-      case 'v':  c= '\v'; break;	/* vt */
-      default:		break;
-      }
-  }
-
-done:
-  *cp = cclass;
+  unsigned char *cclass= *cp;
+  int c= *cclass++;
+  if (c)
+    {
+      if ('\\' == c && *cclass)
+	{
+          switch (c= *cclass++)
+	    {
+            case 'a':  c= '\a'; break;	/* bel */
+            case 'b':  c= '\b'; break;	/* bs */
+            case 'e':  c= '\e'; break;	/* esc */
+            case 'f':  c= '\f'; break;	/* ff */
+            case 'n':  c= '\n'; break;	/* nl */
+            case 'r':  c= '\r'; break;	/* cr */
+            case 't':  c= '\t'; break;	/* ht */
+            case 'v':  c= '\v'; break;	/* vt */
+            case 'x':
+              c= 0;
+              if (higit(*cclass)) c= (c << 4) + hexval(*cclass++);
+              if (higit(*cclass)) c= (c << 4) + hexval(*cclass++);
+              break;
+            default:
+              if (oigit(c))
+                {
+                  c -= '0';
+                  if (oigit(*cclass)) c= (c << 3) + *cclass++ - '0';
+                  if (oigit(*cclass)) c= (c << 3) + *cclass++ - '0';
+                }
+              break;
+            }
+	}
+	*cp= cclass;
+    }
   return c;
 }
 
@@ -181,7 +190,7 @@ static void nl(void)	        { fprintf(output, "\n"); }
 static void pindent(void)	{ fprintf(output, "%*s", 2*indent, ""); }
 static void begin(void)		{ indent++; pindent(); fprintf(output, "{"); }
 static void save(int n)		{ nl(); pindent(); fprintf(output, "  int yypos%d= G->pos, yythunkpos%d= G->thunkpos;\n", n, n); }
-static void label(int n)	{ nl(); pindent(); fprintf(output, "  l%d:\n", n); }
+static void label(int n)	{ nl(); pindent(); fprintf(output, "  l%d:\n", n); } /* Note: ensure that there is an expr following */
 static void jump(int n)		{ pindent(); fprintf(output, "  goto l%d;", n); }
 static void restore(int n)	{ pindent(); fprintf(output, "  G->pos= yypos%d; G->thunkpos= yythunkpos%d;\n", n, n); }
 static void end(void)		{ pindent(); indent--; fprintf(output, "}\n"); }
@@ -259,16 +268,14 @@ static void Node_compile_c_ko(Node *node, int ko)
       break;
 
     case Predicate:
-      pindent();
-      //fprintf(output, "  yyText(G, G->begin, G->end);\n  if (!(%s)) goto l%d;\n", node->action.text, ko);
-      /* predicates have access to yytext */
-      fprintf(output, "  yyText(G, G->begin, G->end);\n  {\n");
-      fprintf(output, "    #define yytext G->text\n");
-      fprintf(output, "    #define yyleng G->textlen\n");
-      fprintf(output, "    if (!(%s)) goto l%d;\n", node->action.text, ko);
-      fprintf(output, "    #undef yytext\n");
-      fprintf(output, "    #undef yyleng\n");
-      fprintf(output, "  }");
+      pindent(); fprintf(output, "  yyText(G, G->begin, G->end);\n");
+      begin(); nl();
+      pindent(); fprintf(output, "  #define yytext G->text\n");
+      pindent(); fprintf(output, "  #define yyleng G->textlen\n");
+      pindent(); fprintf(output, "  if (!(%s)) goto l%d;\n", node->action.text, ko);
+      pindent(); fprintf(output, "  #undef yytext\n");
+      pindent(); fprintf(output, "  #undef yyleng\n");
+      end(); nl();
       break;
 
     case Alternate:
@@ -289,6 +296,7 @@ static void Node_compile_c_ko(Node *node, int ko)
 	    Node_compile_c_ko(node, ko);
 	end();
 	label(ok);
+        pindent(); fprintf(output, "  ;\n");
       }
       break;
 
@@ -323,15 +331,15 @@ static void Node_compile_c_ko(Node *node, int ko)
 
     case Query:
       {
-	int qko= yyl(), qok= yyl();
+	int again= yyl(), out= yyl();
 	begin();
-	save(qko);
-	Node_compile_c_ko(node->query.element, qko);
-	jump(qok);
-	label(qko);
-	restore(qko);
+	save(out);
+	Node_compile_c_ko(node->query.element, out);
+	jump(again);
+	label(out);
+	restore(out);
 	end();
-	label(qok);
+	label(again);
 	pindent(); fprintf(output, "  ;\n");
       }
       break;

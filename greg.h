@@ -19,6 +19,10 @@
  */
 
 #include <stdio.h>
+#ifdef WIN32
+# undef inline
+# define inline __inline
+#endif
 
 #define GREG_MAJOR	0
 #define GREG_MINOR	4
