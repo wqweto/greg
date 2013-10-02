@@ -189,6 +189,8 @@ static char *makeCharClass(unsigned char *cclass)
 static void nl(void)	        { fprintf(output, "\n"); }
 static void pindent(void)	{ fprintf(output, "%*s", 2*indent, ""); }
 static void begin(void)		{ indent++; pindent(); fprintf(output, "{"); }
+static void define(const char* const def, const char* const v) { pindent(); fprintf(output, "  #define %s %s\n", def, v); }
+static void undef(const char* const def) { pindent(); fprintf(output, "  #undef %s\n", def); }
 static void save(int n)		{ nl(); pindent(); fprintf(output, "  int yypos%d= G->pos, yythunkpos%d= G->thunkpos;\n", n, n); }
 static void label(int n)	{ nl(); pindent(); fprintf(output, "  l%d:\n", n); } /* Note: ensure that there is an expr following */
 static void jump(int n)		{ pindent(); fprintf(output, "  goto l%d;", n); }
@@ -255,11 +257,9 @@ static void Node_compile_c_ko(Node *node, int ko)
     case Predicate:
       pindent(); fprintf(output, "  yyText(G, G->begin, G->end);\n");
       begin(); nl();
-      pindent(); fprintf(output, "  #define yytext G->text\n");
-      pindent(); fprintf(output, "  #define yyleng G->textlen\n");
+      define("yytext", "G->text"); define("yyleng", "G->textlen");
       pindent(); fprintf(output, "  if (!(%s)) goto l%d;\n", node->action.text, ko);
-      pindent(); fprintf(output, "  #undef yytext\n");
-      pindent(); fprintf(output, "  #undef yyleng\n");
+      undef("yytext"); undef("yyleng");
       end(); nl();
       break;
 
@@ -272,11 +272,9 @@ static void Node_compile_c_ko(Node *node, int ko)
         label(eko);
         pindent(); fprintf(output, "  yyText(G, G->begin, G->end);\n");
         begin(); nl();
-        pindent(); fprintf(output, "  #define yytext G->text\n");
-        pindent(); fprintf(output, "  #define yyleng G->textlen\n");
+        define("yytext", "G->text"); define("yyleng", "G->textlen");
         pindent(); fprintf(output, "  %s;\n", node->error.text);
-        pindent(); fprintf(output, "  #undef yytext\n");
-        pindent(); fprintf(output, "  #undef yyleng\n");
+        undef("yytext"); undef("yyleng");
         end(); nl();
         jump(ko);
         label(eok);
@@ -411,7 +409,7 @@ static void undefineVariables(Node *node)
 {
   while (node)
     {
-      pindent(); fprintf(output, "  #undef %s\n", node->variable.name);
+      undef(node->variable.name);
       node= node->variable.next;
     }
 }
