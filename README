@@ -1,12 +1,11 @@
-greg is a re-entrant peg/leg, with some bug fixes and enhancements.
+greg is a re-entrant leg, with some bug fixes and enhancements.
 <http://piumarta.com/software/peg/>
+This version is equivalent to leg from peg-0.1.13.
 
 greg derived from potion <http://github.com/perl11/potion>,
-is used as perl5 and perl6 parser in <http://github.com/perl11/p2>
-and in nagaqueen, an ooc grammar, used in rock, an ooc
-compiler written in ooc,
-<http://github.com/nddrylliog/nagaqueen>
-<http://github.com/nddrylliog/rock>
+is used as perl5 and perl6 parser in <http://github.com/perl11/p2>.
+And in nagaqueen, an ooc grammar <http://github.com/nddrylliog/nagaqueen>,
+used in rock, an ooc compiler written in ooc <http://github.com/nddrylliog/rock>.
 
 peg/leg is copyright (c) 2007 by Ian Piumarta
 released under an MIT license. as is greg.
