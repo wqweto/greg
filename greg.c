@@ -92,11 +92,11 @@ int main()\n\
 # ifndef YYDEBUG_VERBOSE
 #  define YYDEBUG_VERBOSE 2
 # endif
-# define yyprintf(args)	   if (yydebug & YYDEBUG_PARSE)         fprintf args
-# define yyprintfv(args)   if (yydebug & YYDEBUG_PARSE && yydebug & YYDEBUG_VERBOSE) fprintf args
-# define yyprintfGcontext  if (yydebug & YYDEBUG_PARSE)         yyprintcontext(G,stderr,G->buf+G->pos)
-# define yyprintfvGcontext if (yydebug & YYDEBUG_PARSE && yydebug & YYDEBUG_VERBOSE) yyprintcontext(G,stderr,G->buf+G->pos)
-# define yyprintfvTcontext(text) if (yydebug & YYDEBUG_PARSE && yydebug & YYDEBUG_VERBOSE) yyprintcontext(G,stderr,text)
+# define yyprintf(args)	   if (yydebug & YYDEBUG_PARSE)   fprintf args
+# define yyprintfv(args)   if (yydebug & YYDEBUG_VERBOSE) fprintf args
+# define yyprintfGcontext  if (yydebug & YYDEBUG_PARSE)   yyprintcontext(G,stderr,G->buf+G->pos)
+# define yyprintfvGcontext if (yydebug & YYDEBUG_VERBOSE) yyprintcontext(G,stderr,G->buf+G->pos)
+# define yyprintfvTcontext(text) if (yydebug & YYDEBUG_VERBOSE) yyprintcontext(G,stderr,text)
 # define yyprintfokrule(rule) if (yydebug & YYDEBUG_PARSE) {\
   if (G->buf[G->pos]) {\
     fprintf(stderr, "  ok   %s", rule);\
@@ -105,7 +105,7 @@ int main()\n\
   } else {\
     yyprintfv((stderr, "  ok   %s @ \"\"\n", rule));\
   }}
-# define yyprintfvokrule(rule) if (yydebug  & YYDEBUG_PARSE && yydebug & YYDEBUG_VERBOSE) {\
+# define yyprintfvokrule(rule) if (yydebug & YYDEBUG_VERBOSE) {\
   if (G->buf[G->pos]) {\
     fprintf(stderr, "  ok   %s", rule);\
     yyprintcontext(G,stderr,G->buf+G->pos);\
@@ -113,7 +113,7 @@ int main()\n\
   } else {\
     yyprintfv((stderr, "  ok   %s @ \"\"\n", rule));\
   }}
-# define yyprintfvfailrule(rule) if (yydebug  & YYDEBUG_PARSE && yydebug & YYDEBUG_VERBOSE) {\
+# define yyprintfvfailrule(rule) if (yydebug & YYDEBUG_VERBOSE) {\
     fprintf(stderr, "  fail %s", rule);\
     yyprintcontext(G,stderr,G->buf+G->pos);\
     fprintf(stderr, "\n");\
