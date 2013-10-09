@@ -1,6 +1,5 @@
 OFLAGS = -O3 -DNDEBUG -DYY_MAIN
 CFLAGS = -g -Wall -Wno-unused-function $(OFLAGS) $(XFLAGS)
-#OFLAGS = -pg
 
 SRCS = tree.c compile.c
 SAMPLES = $(wildcard samples/*.leg)
