@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 2.8)
+project(greg)
+if (NOT MSVC)
+    add_definitions(-g -Wall -O3 -DNDEBUG)
+endif()
+add_executable(greg greg.c compile.c tree.c)
