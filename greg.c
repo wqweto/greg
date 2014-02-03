@@ -10,10 +10,15 @@ struct _GREG;
 
 # include <stdio.h>
 # include <stdlib.h>
-# include <unistd.h>
 # include <string.h>
-# include <libgen.h>
 # include <assert.h>
+# if !_MSC_VER
+# include <unistd.h>
+# include <libgen.h>
+# else
+# include <io.h>
+# include <fcntl.h>
+# endif
 
   typedef struct Header Header;
 
@@ -1476,13 +1481,19 @@ int main(int argc, char **argv)
 {
   GREG *G;
   Node *n;
+#if !_MSC_VER
   int   c;
+#endif
 
   output= stdout;
+#if _MSC_VER
+  setmode(fileno(output), O_BINARY);
+#endif
   input= stdin;
   lineNumber= 1;
   fileName= "<stdin>";
 
+#if !_MSC_VER
   while (-1 != (c= getopt(argc, argv, "Vho:v")))
     {
       switch (c)
@@ -1514,6 +1525,10 @@ int main(int argc, char **argv)
     }
   argc -= optind;
   argv += optind;
+#else
+  argc -= 1;
+  argv += 1;
+#endif
 
   G = yyparse_new(NULL);
 #ifdef YY_DEBUG
@@ -1530,11 +1545,14 @@ int main(int argc, char **argv)
 	  if (!strcmp(*argv, "-"))
 	    {
 	      input= stdin;
+#if _MSC_VER
+          setmode(fileno(input), O_BINARY);
+#endif
 	      fileName= "<stdin>";
 	    }
 	  else
 	    {
-	      if (!(input= fopen(*argv, "r")))
+	      if (!(input= fopen(*argv, "rb")))
 		{
 		  perror(*argv);
 		  exit(1);
