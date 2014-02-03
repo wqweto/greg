@@ -18,6 +18,7 @@ struct _GREG;
 # else
 # include <io.h>
 # include <fcntl.h>
+# include "getopt.h"
 # endif
 
   typedef struct Header Header;
@@ -1477,13 +1478,20 @@ static void usage(char *name)
   exit(1);
 }
 
+#if _MSC_VER
+static char* basename(const char *str)
+{
+    static char buf[200];
+    _splitpath(str, NULL, NULL, buf, NULL);
+    return buf;
+}
+#endif
+
 int main(int argc, char **argv)
 {
   GREG *G;
   Node *n;
-#if !_MSC_VER
   int   c;
-#endif
 
   output= stdout;
 #if _MSC_VER
@@ -1493,7 +1501,6 @@ int main(int argc, char **argv)
   lineNumber= 1;
   fileName= "<stdin>";
 
-#if !_MSC_VER
   while (-1 != (c= getopt(argc, argv, "Vho:v")))
     {
       switch (c)
@@ -1507,7 +1514,7 @@ int main(int argc, char **argv)
 	  break;
 
 	case 'o':
-	  if (!(output= fopen(optarg, "w")))
+	  if (!(output= fopen(optarg, "wb")))
 	    {
 	      perror(optarg);
 	      exit(1);
@@ -1525,10 +1532,6 @@ int main(int argc, char **argv)
     }
   argc -= optind;
   argv += optind;
-#else
-  argc -= 1;
-  argv += 1;
-#endif
 
   G = yyparse_new(NULL);
 #ifdef YY_DEBUG

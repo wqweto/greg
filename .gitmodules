@@ -1,0 +1,3 @@
+[submodule "wingetopt"]
+	path = wingetopt
+	url = git://github.com/kainjow/wingetopt
