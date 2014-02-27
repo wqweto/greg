@@ -36,6 +36,7 @@
   int   batch= 0;
 
   int nextline(char *buf, int max);
+  int findLine(int n, int create);
 
 # define min(x, y) ((x) < (y) ? (x) : (y))
 
@@ -95,7 +96,7 @@ statement = 'print'- expr-list
 |           'goto'- e:expression			{ epc= pc;  if ((pc= findLine(e.number, 0)) < 0) error("no such line"); }
 |           'input'- var-list
 |           'let'- v:var EQUAL e:expression		{ variables[v.number]= e.number; }
-|           'gosub'- e:expression			{ epc= pc;  if (sp < 1024) stack[sp++]= pc, pc= findLine(e.number); else error("too many gosubs");
+|           'gosub'- e:expression			{ epc= pc;  if (sp < 1024) stack[sp++]= pc, pc= findLine(e.number, 0); else error("too many gosubs");
 							  if (pc < 0) error("no such line"); }
 |           'return'-					{ epc= pc;  if ((pc= sp ? stack[--sp] : -1) < 0) error("no gosub"); }
 |           'clear'-					{ while (numLines) accept(lines->number, "\n"); }
