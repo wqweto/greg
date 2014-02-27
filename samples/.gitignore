@@ -1,0 +1,11 @@
+*.dSYM
+
+*.exe
+accept
+basic
+calc
+dc
+dcv
+rule
+test
+wc
