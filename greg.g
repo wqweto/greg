@@ -22,10 +22,16 @@
 
 # include <stdio.h>
 # include <stdlib.h>
-# include <unistd.h>
 # include <string.h>
-# include <libgen.h>
 # include <assert.h>
+# if !_MSC_VER
+# include <unistd.h>
+# include <libgen.h>
+# else
+# include <io.h>
+# include <fcntl.h>
+# include "getopt.h"
+# endif
 
   typedef struct Header Header;
 
@@ -205,6 +211,15 @@ static void usage(char *name)
   exit(1);
 }
 
+#if _MSC_VER
+static char* basename(const char *str)
+{
+    static char buf[200];
+    _splitpath(str, NULL, NULL, buf, NULL);
+    return buf;
+}
+#endif
+
 int main(int argc, char **argv)
 {
   GREG *G;
@@ -212,6 +227,9 @@ int main(int argc, char **argv)
   int   c;
 
   output= stdout;
+#if _MSC_VER
+  setmode(fileno(output), O_BINARY);
+#endif
   input= stdin;
   lineNumber= 1;
   fileName= "<stdin>";
@@ -229,7 +247,7 @@ int main(int argc, char **argv)
 	  break;
 
 	case 'o':
-	  if (!(output= fopen(optarg, "w")))
+	  if (!(output= fopen(optarg, "wb")))
 	    {
 	      perror(optarg);
 	      exit(1);
@@ -263,11 +281,14 @@ int main(int argc, char **argv)
 	  if (!strcmp(*argv, "-"))
 	    {
 	      input= stdin;
+#if _MSC_VER
+          setmode(fileno(input), O_BINARY);
+#endif
 	      fileName= "<stdin>";
 	    }
 	  else
 	    {
-	      if (!(input= fopen(*argv, "r")))
+	      if (!(input= fopen(*argv, "rb")))
 		{
 		  perror(*argv);
 		  exit(1);
