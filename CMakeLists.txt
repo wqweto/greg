@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
+cmake_policy(SET CMP0026 OLD) # allow LOCATION usage
 project(greg)
 
 set(sources greg.c compile.c tree.c)
@@ -24,3 +25,7 @@ get_target_property(greg_loc greg LOCATION)
 set(greg_c "${CMAKE_CURRENT_LIST_DIR}/greg.c")
 set(greg_g "${CMAKE_CURRENT_LIST_DIR}/greg.g")
 add_custom_target(grammar COMMAND ${greg_loc} -o ${greg_c} ${greg_g})
+
+# install
+install(TARGETS greg RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+
