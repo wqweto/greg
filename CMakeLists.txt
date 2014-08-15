@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
-cmake_policy(SET CMP0026 OLD) # allow LOCATION usage
+if(POLICY CMP0026)
+  cmake_policy(SET CMP0026 OLD) # allow LOCATION usage
+endif(POLICY CMP0026)
 project(greg)
 
 set(sources greg.c compile.c tree.c)
