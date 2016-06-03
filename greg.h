@@ -17,6 +17,13 @@
  */
 
 #include <stdio.h>
+#include <string.h>
+
+# if _MSC_VER
+#define strdup _strdup
+#define setmode _setmode
+#define fileno _fileno
+#endif
 
 #define GREG_MAJOR      0
 #define GREG_MINOR      4
