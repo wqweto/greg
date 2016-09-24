@@ -26,8 +26,6 @@ With a GCC-like compiler, `make` should give you a greg executable.
 If you modify `greg.g` (greg's own grammar is written in LEG), run `make grammar` to
 regenerate `greg.c` using greg itself, then run `make` again to build it.
 
-To build with MSVC you need a getopt implementation such as [this one](https://github.com/alex85k/wingetopt).
-
 ## Contributor guidelines
 
   * [GitHub pull requests](https://github.com/nddrylliog/greg/pulls) are the preferred way to submit contributions.
