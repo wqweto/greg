@@ -512,11 +512,13 @@ static const char *preamble= "\
 \n\
 #ifndef YY_PART\n\
 #define yydata G->data\n\
+#define yybuf G->buf\n\
+#define yycapture (*thunk)\n\
 #define yy G->ss\n\
 \n\
 struct _yythunk; /* forward declaration */\n\
 typedef void (*yyaction)(struct _GREG *G, char *yytext, int yyleng, struct _yythunk *thunkpos, YY_XTYPE YY_XVAR);\n\
-typedef struct _yythunk { int begin, end;  yyaction  action; const char *name; struct _yythunk *next; } yythunk;\n\
+typedef struct _yythunk { int begin, end;  yyaction  action; const char *name; } yythunk;\n\
 \n\
 typedef struct _GREG {\n\
   char *buf;\n\
