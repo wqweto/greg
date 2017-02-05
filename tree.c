@@ -314,7 +314,8 @@ static void Node_fprint(FILE *stream, Node *node)
     case Character:	fprintf(stream, " '%s'", node->character.value);			break;
     case String:	fprintf(stream, " \"%s\"%s", node->string.value, 
                                 (IgnoreCase & node->string.flags) ? "i" : "");                  break;
-    case Class:		fprintf(stream, " [%s]", node->cclass.value);				break;
+    case Class:		fprintf(stream, " [%s]%s", node->cclass.value,
+                                (IgnoreCase & node->string.flags) ? "i" : "");			break;
     case Action:	fprintf(stream, " { %s }", node->action.text);				break;
     case Predicate:	fprintf(stream, " ?{ %s }", node->action.text);				break;
 
