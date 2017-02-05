@@ -506,6 +506,9 @@ static const char *preamble= "\
 #ifndef YY_BUFFER_START_SIZE\n\
 #define YY_BUFFER_START_SIZE 1024\n\
 #endif\n\
+#ifndef YY_TEXT_START_SIZE\n\
+#define YY_TEXT_START_SIZE 1024\n\
+#endif\n\
 \n\
 #ifndef YY_PART\n\
 #define yydata G->data\n\
@@ -648,7 +651,7 @@ YY_LOCAL(int) yyText(GREG *G, int begin, int end)\n\
   int yyleng= end - begin;\n\
   if (yyleng <= 0)\n\
     yyleng= 0;\n\
-  else\n\
+  else if (G->text)\n\
     {\n\
       while (G->textlen < (yyleng + 1))\n\
         {\n\
@@ -657,7 +660,7 @@ YY_LOCAL(int) yyText(GREG *G, int begin, int end)\n\
         }\n\
       memcpy(G->text, G->buf + begin, yyleng);\n\
     }\n\
-  G->text[yyleng]= '\\0';\n\
+  if (G->text) G->text[yyleng]= '\\0';\n\
   return yyleng;\n\
 }\n\
 \n\
@@ -736,8 +739,8 @@ YY_PARSE(int) YY_NAME(parse_from)(GREG *G, yyrule yystart)\n\
     {\n\
       G->buflen= YY_BUFFER_START_SIZE;\n\
       G->buf= (char*)YY_ALLOC(G->buflen, G->data);\n\
-      G->textlen= YY_BUFFER_START_SIZE;\n\
-      G->text= (char*)YY_ALLOC(G->textlen, G->data);\n\
+      G->textlen= YY_TEXT_START_SIZE;\n\
+      G->text= (char*)(G->textlen ? YY_ALLOC(G->textlen, G->data) : 0);\n\
       G->thunkslen= YY_STACK_SIZE;\n\
       G->thunks= (yythunk*)YY_ALLOC(sizeof(yythunk) * G->thunkslen, G->data);\n\
       G->valslen= YY_STACK_SIZE;\n\
